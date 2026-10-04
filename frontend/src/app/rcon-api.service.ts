@@ -4,9 +4,8 @@ import { Observable, tap } from 'rxjs';
 
 export interface RconCredentials {
   serverIp: string;
+  serverPort: number;
   rconPassword: string;
-  panelUsername: string;
-  panelPassword: string;
 }
 
 export interface RconCommandResponse {
@@ -41,14 +40,11 @@ export class RconApiService {
   }
 
   private executeWithCredentials(command: string, credentials: RconCredentials): Observable<RconCommandResponse> {
-    const encodedCredentials = new TextEncoder().encode(`${credentials.panelUsername}:${credentials.panelPassword}`);
-    const binaryCredentials = Array.from(encodedCredentials, (byte) => String.fromCharCode(byte)).join('');
-    const basicToken = btoa(binaryCredentials);
-    const headers = new HttpHeaders({ Authorization: `Basic ${basicToken}` });
     return this.http.post<RconCommandResponse>('/api/rcon/commands', {
       serverIp: credentials.serverIp,
+      serverPort: credentials.serverPort,
       command,
       rconPassword: credentials.rconPassword,
-    }, { headers });
+    }, { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) });
   }
 }

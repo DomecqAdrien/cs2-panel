@@ -24,9 +24,9 @@ public class SourceRconClient {
         this.properties = properties;
     }
 
-    public String execute(String command, String password) {
+    public String execute(String host, int port, String command, String password) {
         try (Socket socket = new Socket()) {
-            socket.connect(new InetSocketAddress(properties.host(), properties.port()), properties.connectTimeoutMs());
+            socket.connect(new InetSocketAddress(host, port), properties.connectTimeoutMs());
             socket.setSoTimeout(properties.responseTimeoutMs());
 
             DataInputStream input = new DataInputStream(socket.getInputStream());
@@ -48,17 +48,11 @@ public class SourceRconClient {
     }
 
     private void authenticate(DataInputStream input, int authId) throws IOException {
-        boolean authenticated = false;
-        for (int i = 0; i < 2; i++) {
-            Packet packet = readPacket(input);
-            if (packet.id() == -1) {
-                throw new RconException("Authentification RCON refusée. Vérifie le mot de passe saisi.");
-            }
-            if (packet.id() == authId && packet.type() == SERVERDATA_AUTH_RESPONSE) {
-                authenticated = true;
-            }
+        Packet packet = readPacket(input);
+        if (packet.id() == -1) {
+            throw new RconException("Authentification RCON refusée. Vérifie le mot de passe saisi.");
         }
-        if (!authenticated) {
+        if (packet.id() != authId || packet.type() != SERVERDATA_AUTH_RESPONSE) {
             throw new RconException("Réponse d'authentification RCON invalide.");
         }
     }

@@ -16,8 +16,7 @@ export class AppComponent {
   readonly rconApi = inject(RconApiService);
 
   serverIp = '';
-  panelUsername = 'admin';
-  panelPassword = '';
+  serverPort = 27015;
   rconPassword = '';
   command = '';
   lastResponse: RconCommandResponse | null = null;
@@ -32,15 +31,13 @@ export class AppComponent {
 
     this.rconApi.connect({
       serverIp: this.serverIp.trim(),
+      serverPort: this.serverPort,
       rconPassword: this.rconPassword,
-      panelUsername: this.panelUsername.trim(),
-      panelPassword: this.panelPassword,
     }).subscribe({
       next: (response) => {
         this.lastResponse = response;
         this.connecting = false;
         this.rconPassword = '';
-        this.panelPassword = '';
       },
       error: (error: unknown) => {
         this.connectionError = this.getErrorMessage(error);
@@ -79,8 +76,7 @@ export class AppComponent {
     if (error instanceof HttpErrorResponse) {
       const detail = error.error?.detail;
       if (typeof detail === 'string' && detail.length > 0) return detail;
-      if (error.status === 401) return 'Accès au panneau refusé. Vérifie les identifiants du panneau.';
-      if (error.status === 403) return 'Cette adresse IP ne correspond pas au serveur configuré.';
+      if (error.status === 400) return error.error?.detail || 'Vérifie l’adresse IP et le port RCON.';
       if (error.status === 0) return 'Backend inaccessible. Vérifie qu’il est démarré.';
       return `La requête a échoué (HTTP ${error.status}).`;
     }

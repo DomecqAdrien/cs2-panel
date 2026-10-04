@@ -25,7 +25,7 @@
       <div class="connection-dot" [class.connected]="rconApi.activeCredentials()"></div>
       <div>
         <strong>{{ rconApi.activeCredentials() ? 'Connecté au serveur' : 'Connexion à configurer' }}</strong>
-        <small>{{ rconApi.activeCredentials()?.serverIp || 'Serveur CS2' }}</small>
+        <small>{{ rconApi.activeCredentials() ? rconApi.activeCredentials()?.serverIp + ':' + rconApi.activeCredentials()?.serverPort : 'Serveur CS2' }}</small>
       </div>
     </div>
   </aside>
@@ -41,7 +41,7 @@
         <div>
           <p class="eyebrow">CENTRE DE CONTRÔLE</p>
           <h1>Vue d’ensemble</h1>
-          <p class="subheading">Ton serveur CS2, au même endroit.</p>
+          <p class="subheading">Connecte-toi à n’importe quel serveur CS2 avec RCON.</p>
         </div>
         <div class="server-state" [class.online]="rconApi.activeCredentials()">
           <span class="state-dot"></span>{{ rconApi.activeCredentials() ? 'Connecté' : 'Hors ligne' }}
@@ -53,7 +53,7 @@
           <div class="banner-icon">✓</div>
           <div class="banner-copy">
             <h2>Serveur connecté</h2>
-            <p>{{ credentials.serverIp }} · Commande de vérification reçue à {{ lastResponse?.executedAt | date:'HH:mm:ss' }}</p>
+            <p>{{ credentials.serverIp }}:{{ credentials.serverPort }} · Commande de vérification reçue à {{ lastResponse?.executedAt | date:'HH:mm:ss' }}</p>
           </div>
           <button class="quiet-button" type="button" (click)="disconnect()">Déconnecter</button>
         </section>
@@ -70,24 +70,20 @@
 
           <form class="connection-form" (ngSubmit)="connect()">
             <label>
-              <span>Adresse IPv4 du serveur</span>
-              <input type="text" name="serverIp" [(ngModel)]="serverIp" placeholder="203.0.113.42" autocomplete="off" inputmode="decimal" pattern="^(?:(?:25[0-5]|2[0-4][0-9]|1?[0-9]?[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1?[0-9]?[0-9])$" required>
+              <span>Adresse IPv4 publique</span>
+              <input type="text" name="serverIp" [(ngModel)]="serverIp" placeholder="Adresse du serveur" autocomplete="off" inputmode="decimal" pattern="^(?:(?:25[0-5]|2[0-4][0-9]|1?[0-9]?[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1?[0-9]?[0-9])$" required>
+            </label>
+            <label>
+              <span>Port RCON</span>
+              <input type="number" name="serverPort" [(ngModel)]="serverPort" placeholder="27015" min="1" max="65535" required>
             </label>
             <label>
               <span>Mot de passe RCON</span>
               <input type="password" name="rconPassword" [(ngModel)]="rconPassword" placeholder="Mot de passe du serveur" autocomplete="new-password" required>
             </label>
-            <label>
-              <span>Identifiant du panneau</span>
-              <input type="text" name="panelUsername" [(ngModel)]="panelUsername" autocomplete="username" required>
-            </label>
-            <label>
-              <span>Mot de passe du panneau</span>
-              <input type="password" name="panelPassword" [(ngModel)]="panelPassword" placeholder="Mot de passe administrateur" autocomplete="current-password" required>
-            </label>
             <div class="form-footer">
-              <p>IP autorisée définie par la configuration du serveur.</p>
-              <button class="primary-button" type="submit" [disabled]="connecting || !serverIp.trim() || !rconPassword || !panelUsername.trim() || !panelPassword">
+              <p>Les identifiants restent en mémoire dans cet onglet et sont oubliés à sa fermeture.</p>
+              <button class="primary-button" type="submit" [disabled]="connecting || !serverIp.trim() || serverPort < 1 || serverPort > 65535 || !rconPassword">
                 {{ connecting ? 'Connexion…' : 'Tester la connexion' }} <span>→</span>
               </button>
             </div>
