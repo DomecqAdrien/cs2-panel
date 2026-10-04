@@ -1,0 +1,29 @@
+# Overlay to combine with the existing CS2 compose file:
+# docker compose -f docker-compose.yml -f docker-compose.panel.yml up -d --build
+# Keep this file and the backend/ directory beside the existing compose file on the VPS.
+
+services:
+  cs2:
+    environment:
+      # The image's TCP proxy moves RCON to a port used only on the Docker network.
+      CS2_RCON_PORT: "27050"
+
+  panel-backend:
+    build:
+      context: ./backend
+    container_name: cs2-panel-backend
+    restart: unless-stopped
+    depends_on:
+      cs2:
+        condition: service_started
+    environment:
+      SERVER_PORT: "8080"
+      CS2_RCON_HOST: cs2
+      CS2_RCON_PORT: "27050"
+      CS2_SERVER_PUBLIC_IP: ${CS2_SERVER_PUBLIC_IP:?Ajoute CS2_SERVER_PUBLIC_IP au fichier .env du serveur}
+      PANEL_ADMIN_USERNAME: ${PANEL_ADMIN_USERNAME:-admin}
+      PANEL_ADMIN_PASSWORD: ${PANEL_ADMIN_PASSWORD:?Ajoute PANEL_ADMIN_PASSWORD au fichier .env du serveur}
+      PANEL_CORS_ALLOWED_ORIGINS: ${PANEL_CORS_ALLOWED_ORIGINS:-http://localhost:4200}
+    ports:
+      # Localhost only: put the API behind your HTTPS reverse proxy before remote access.
+      - "127.0.0.1:8080:8080"
