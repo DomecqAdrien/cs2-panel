@@ -14,4 +14,4 @@ npm install
 npm start
 ```
 
-The app is served at `http://localhost:4200`. The current screen is the initial dashboard shell; server data, RCON console, maps, and presets will be connected in the next implementation steps.
+The app is served at `http://localhost:4200`. In production, Docker builds the static Angular app and serves it with Nginx; Nginx forwards `/api` to the backend. See [`../DEPLOYMENT.md`](../DEPLOYMENT.md) for VPS deployment from Git.

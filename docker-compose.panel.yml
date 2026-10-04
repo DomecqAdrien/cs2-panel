@@ -1,4 +1,4 @@
-# Standalone console backend. It does not depend on a local CS2 container.
+# CS2 Panel frontend and backend. The CS2 game server may remain in its own Compose project.
 services:
   panel-backend:
     build:
@@ -9,5 +9,16 @@ services:
       SERVER_PORT: "8080"
       PANEL_CORS_ALLOWED_ORIGINS: ${PANEL_CORS_ALLOWED_ORIGINS:-http://localhost:4200}
     ports:
-      # Keep the API private; expose it through an HTTPS reverse proxy.
+      # Bound to VPS localhost; the frontend proxies API requests over the Compose network.
       - "127.0.0.1:8080:8080"
+
+  panel-frontend:
+    build:
+      context: ./frontend
+    container_name: cs2-panel-frontend
+    restart: unless-stopped
+    depends_on:
+      - panel-backend
+    ports:
+      # Point the VPS HTTPS reverse proxy to this port.
+      - "127.0.0.1:8081:80"
