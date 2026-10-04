@@ -70,12 +70,12 @@
 
           <form class="connection-form" (ngSubmit)="connect()">
             <label>
-              <span>Adresse IPv4 publique</span>
-              <input type="text" name="serverIp" [(ngModel)]="serverIp" placeholder="Adresse du serveur" autocomplete="off" inputmode="decimal" pattern="^(?:(?:25[0-5]|2[0-4][0-9]|1?[0-9]?[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1?[0-9]?[0-9])$" required>
-            </label>
-            <label>
-              <span>Port RCON</span>
-              <input type="number" name="serverPort" [(ngModel)]="serverPort" placeholder="27015" min="1" max="65535" required>
+              <span>Serveur (IP:port)</span>
+              <input type="text" name="serverAddress" [(ngModel)]="serverAddress" placeholder="203.0.113.42:27015" autocomplete="off" inputmode="decimal" maxlength="21" required>
+              <small class="field-hint">Le port est facultatif ; 27015 sera utilisé par défaut.</small>
+              @if (serverAddress && !parsedServerAddress) {
+                <small class="field-error">Adresse invalide ou port hors limites (1–65535).</small>
+              }
             </label>
             <label>
               <span>Mot de passe RCON</span>
@@ -83,7 +83,7 @@
             </label>
             <div class="form-footer">
               <p>Les identifiants restent en mémoire dans cet onglet et sont oubliés à sa fermeture.</p>
-              <button class="primary-button" type="submit" [disabled]="connecting || !serverIp.trim() || serverPort < 1 || serverPort > 65535 || !rconPassword">
+              <button class="primary-button" type="submit" [disabled]="connecting || !parsedServerAddress || !rconPassword">
                 {{ connecting ? 'Connexion…' : 'Tester la connexion' }} <span>→</span>
               </button>
             </div>

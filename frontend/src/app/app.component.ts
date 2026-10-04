@@ -15,8 +15,7 @@ import {DatePipe} from "@angular/common";
 export class AppComponent {
   readonly rconApi = inject(RconApiService);
 
-  serverIp = '';
-  serverPort = 27015;
+  serverAddress = '';
   rconPassword = '';
   command = '';
   lastResponse: RconCommandResponse | null = null;
@@ -25,13 +24,29 @@ export class AppComponent {
   connecting = false;
   sendingCommand = false;
 
+  get parsedServerAddress(): { serverIp: string; serverPort: number } | null {
+    const match = /^((?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.){3}(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?::(\d{1,5}))?)$/.exec(this.serverAddress.trim());
+    if (!match) return null;
+
+    const [serverIp, portText] = match[1].split(':');
+    const serverPort = portText ? Number(portText) : 27015;
+    if (serverPort < 1 || serverPort > 65535) return null;
+
+    return { serverIp, serverPort };
+  }
+
   connect(): void {
     this.connectionError = '';
+    const server = this.parsedServerAddress;
+    if (!server) {
+      this.connectionError = 'Saisis une adresse au format IP:port, par exemple 203.0.113.42:27015.';
+      return;
+    }
+
     this.connecting = true;
 
     this.rconApi.connect({
-      serverIp: this.serverIp.trim(),
-      serverPort: this.serverPort,
+      ...server,
       rconPassword: this.rconPassword,
     }).subscribe({
       next: (response) => {

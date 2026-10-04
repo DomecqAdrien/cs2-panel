@@ -43,8 +43,11 @@ h1 { margin-bottom: 8px; color: #f0f3ed; font-size: clamp(27px, 3vw, 35px); line
 .connection-heading h2 { margin: 0 0 5px; color: #e7eee0; font-size: 15px; font-weight: 650; }
 .connection-heading p:last-child { margin: 0; color: #899286; font-size: 11px; }
 .connection-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 22px; }
-.connection-form label { display: grid; gap: 7px; }
+.connection-form label { display: grid; align-content: start; gap: 7px; }
 .connection-form label > span { color: #aeb6aa; font-size: 10px; font-weight: 650; }
+.field-hint, .field-error { font-size: 10px; }
+.field-hint { color: #737d70; }
+.field-error { color: #f0a38a; }
 .connection-form input, .command-form input { width: 100%; min-width: 0; padding: 11px 12px; border: 1px solid #353d35; border-radius: 5px; outline: none; color: #e7ece4; background: #111511; font-size: 12px; }
 .connection-form input:focus, .command-form input:focus { border-color: #8cac5a; box-shadow: 0 0 0 2px #8cac5a20; }
 .connection-form input::placeholder, .command-form input::placeholder { color: #60695f; }
