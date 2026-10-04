@@ -80,6 +80,7 @@ h1 { margin-bottom: 8px; color: #f0f3ed; font-size: clamp(27px, 3vw, 35px); line
 .stat-value.muted { color: #777f75; }
 .stat-total { color: #737b70; font-size: 14px; font-weight: 500; }
 .stat-foot { margin-top: 5px; color: #798177; font-size: 10px; }
+.status-refresh-error { margin: 10px 0 0; color: #f0a38a; font-size: 11px; }
 .lower-grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 13px; margin-top: 27px; }
 .panel-card { min-height: 257px; padding: 18px; }
 .card-heading { display: flex; align-items: center; justify-content: space-between; padding-bottom: 15px; border-bottom: 1px solid #2a302a; }

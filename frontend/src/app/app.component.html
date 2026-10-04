@@ -64,7 +64,7 @@
             <div>
               <p class="eyebrow">NOUVELLE CONNEXION</p>
               <h2 id="connection-title">Connecte ton serveur</h2>
-              <p>Les mots de passe restent en mémoire dans cet onglet et sont oubliés à sa fermeture.</p>
+              <p>La connexion est restaurée après actualisation de la page.</p>
             </div>
           </div>
 
@@ -82,7 +82,7 @@
               <input type="password" name="rconPassword" [(ngModel)]="rconPassword" placeholder="Mot de passe du serveur" autocomplete="new-password" required>
             </label>
             <div class="form-footer">
-              <p>Les identifiants restent en mémoire dans cet onglet et sont oubliés à sa fermeture.</p>
+              <p>Le mot de passe RCON reste dans la session de cet onglet jusqu’à la déconnexion.</p>
               <button class="primary-button" type="submit" [disabled]="connecting || !parsedServerAddress || !rconPassword">
                 {{ connecting ? 'Connexion…' : 'Tester la connexion' }} <span>→</span>
               </button>
@@ -98,20 +98,25 @@
       <section class="stats-grid" aria-label="Informations du serveur">
         <article class="stat-card">
           <div class="stat-label">CARTE ACTUELLE</div>
-          <div class="stat-value muted">—</div>
-          <div class="stat-foot">En attente de données serveur</div>
+          <div class="stat-value" [class.muted]="!serverInfo()?.map">{{ serverInfo()?.map ?? '—' }}</div>
+          <div class="stat-foot">{{ serverInfo() ? 'Mis à jour à ' + (serverInfo()?.updatedAt | date:'HH:mm:ss') : 'En attente de données serveur' }}</div>
         </article>
         <article class="stat-card">
           <div class="stat-label">JOUEURS</div>
-          <div class="stat-value muted">— <span class="stat-total">/ —</span></div>
-          <div class="stat-foot">En attente de données serveur</div>
+          <div class="stat-value" [class.muted]="serverInfo()?.players === null || serverInfo()?.players === undefined">
+            {{ serverInfo()?.players ?? '—' }} <span class="stat-total">/ {{ serverInfo()?.maxPlayers ?? '—' }}</span>
+          </div>
+          <div class="stat-foot">{{ playerSummary }}</div>
         </article>
         <article class="stat-card">
           <div class="stat-label">MODE DE JEU</div>
-          <div class="stat-value muted">—</div>
-          <div class="stat-foot">En attente de données serveur</div>
+          <div class="stat-value" [class.muted]="!serverInfo()?.gameMode">{{ serverInfo()?.gameMode ?? '—' }}</div>
+          <div class="stat-foot">{{ serverInfo() ? 'Lu depuis les paramètres du serveur' : 'En attente de données serveur' }}</div>
         </article>
       </section>
+      @if (statusRefreshError()) {
+        <p class="status-refresh-error" role="status">Actualisation temporairement indisponible : {{ statusRefreshError() }}</p>
+      }
 
       <section class="lower-grid">
         <article class="panel-card actions-card">
