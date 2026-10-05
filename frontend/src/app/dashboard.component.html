@@ -1,0 +1,71 @@
+<div class="page-heading">
+  <div>
+    <p class="eyebrow">CENTRE DE CONTRÔLE</p>
+    <h1>Vue d’ensemble</h1>
+    <p class="subheading">Consulte et contrôle ton serveur CS2 depuis le panneau.</p>
+  </div>
+  <div class="server-state" [class.online]="rconApi.activeCredentials()">
+    <span class="state-dot"></span>{{ rconApi.activeCredentials() ? 'Connecté' : 'Hors ligne' }}
+  </div>
+</div>
+
+@if (rconApi.activeCredentials(); as credentials) {
+  <section class="connection-banner connected-banner" aria-live="polite">
+    <div class="banner-icon">✓</div>
+    <div class="banner-copy">
+      <h2>Serveur connecté</h2>
+      <p>{{ credentials.serverIp }}:{{ credentials.serverPort }} · Connexion vérifiée à {{ session.lastResponse()?.executedAt | date:'HH:mm:ss' }}</p>
+    </div>
+  </section>
+} @else {
+  <section class="connection-hint" role="status">
+    <span class="state-dot"></span>
+    <span>Pour afficher les informations en direct, saisis tes identifiants dans la barre supérieure puis clique sur <strong>Connecter</strong>.</span>
+  </section>
+}
+
+<div class="section-title"><div><p class="eyebrow">ÉTAT DU SERVEUR</p><h2>Informations en direct</h2></div></div>
+<section class="stats-grid" aria-label="Informations du serveur">
+  <article class="stat-card">
+    <div class="stat-label">CARTE ACTUELLE</div>
+    <div class="stat-value" [class.muted]="!session.serverInfo()?.map">{{ session.serverInfo()?.map ?? '—' }}</div>
+    <div class="stat-foot">{{ session.serverInfo() ? 'Mis à jour à ' + (session.serverInfo()?.updatedAt | date:'HH:mm:ss') : 'En attente de données serveur' }}</div>
+  </article>
+  <article class="stat-card">
+    <div class="stat-label">JOUEURS</div>
+    <div class="stat-value" [class.muted]="session.serverInfo()?.players === null || session.serverInfo()?.players === undefined">
+      {{ session.serverInfo()?.players ?? '—' }} <span class="stat-total">/ {{ session.serverInfo()?.maxPlayers ?? '—' }}</span>
+    </div>
+    <div class="stat-foot">{{ session.playerSummary }}</div>
+  </article>
+  <article class="stat-card">
+    <div class="stat-label">MODE DE JEU</div>
+    <div class="stat-value" [class.muted]="!session.serverInfo()?.gameMode">{{ session.serverInfo()?.gameMode ?? '—' }}</div>
+    <div class="stat-foot">{{ session.serverInfo() ? 'Lu depuis les paramètres du serveur' : 'En attente de données serveur' }}</div>
+  </article>
+</section>
+@if (session.statusRefreshError()) {
+  <p class="status-refresh-error" role="status">Actualisation temporairement indisponible : {{ session.statusRefreshError() }}</p>
+}
+
+<section class="lower-grid">
+  <article class="panel-card actions-card">
+    <div class="card-heading"><div><p class="eyebrow">ACTIONS RAPIDES</p><h2>Contrôler le serveur</h2></div><span class="lock-icon">⌑</span></div>
+    <div class="action-list">
+      <button disabled><span class="action-symbol">▧</span><span><strong>Changer de map</strong><small>Choisir une map officielle ou Workshop</small></span><span class="action-arrow">↗</span></button>
+      <button disabled><span class="action-symbol">◈</span><span><strong>Appliquer un preset</strong><small>Préparer un mode de jeu</small></span><span class="action-arrow">↗</span></button>
+    </div>
+  </article>
+
+  <article class="panel-card console-card">
+    <div class="card-heading"><div><p class="eyebrow">CONSOLE RCON</p><h2>Terminal serveur</h2></div><span class="activity-count">{{ rconApi.activeCredentials() ? 'ON' : 'OFF' }}</span></div>
+    <div class="empty-activity">
+      <div class="empty-mark">⌘</div>
+      <strong>{{ rconApi.activeCredentials() ? 'Prêt à envoyer des commandes' : 'Connecte-toi pour ouvrir la console' }}</strong>
+      <p>Historique, commandes rapides et réponses RCON.</p>
+      <a class="quiet-button console-open" routerLink="/console">Ouvrir la console <span>→</span></a>
+    </div>
+  </article>
+</section>
+
+<footer class="page-footer"><span>CS2 PANEL <span class="footer-separator">/</span> VERSION 0.1</span><span>CONTRÔLE PRIVÉ DU SERVEUR</span></footer>

@@ -1,0 +1,59 @@
+<div class="page-heading">
+  <div>
+    <p class="eyebrow">OUTILS SERVEUR</p>
+    <h1>Console RCON</h1>
+    <p class="subheading">Envoie des commandes et consulte les réponses de ton serveur.</p>
+  </div>
+  <div class="server-state" [class.online]="rconApi.activeCredentials()">
+    <span class="state-dot"></span>{{ rconApi.activeCredentials() ? 'Connecté' : 'Hors ligne' }}
+  </div>
+</div>
+
+@if (rconApi.activeCredentials(); as credentials) {
+  <section class="console-workspace" aria-label="Console RCON">
+    <div class="console-toolbar">
+      <div class="console-server"><span class="connection-dot connected"></span><div><strong>{{ credentials.serverIp }}:{{ credentials.serverPort }}</strong><small>Session RCON active</small></div></div>
+      <button class="quiet-button" type="button" (click)="clearConsole()" [disabled]="entries().length === 0">Effacer la sortie</button>
+    </div>
+
+    <div class="quick-command-bar" aria-label="Commandes rapides">
+      <span>COMMANDES RAPIDES</span>
+      <button type="button" (click)="runQuickCommand('status')" [disabled]="sendingCommand()">status</button>
+      <button type="button" (click)="runQuickCommand('game_type')" [disabled]="sendingCommand()">game_type</button>
+      <button type="button" (click)="runQuickCommand('game_mode')" [disabled]="sendingCommand()">game_mode</button>
+    </div>
+
+    <div class="terminal-body" #terminalBody aria-live="polite" aria-label="Historique de la console">
+      @if (entries().length === 0) {
+        <div class="terminal-empty"><span>&gt;_</span><p>Aucune commande envoyée.</p><small>Essaie <code>status</code> ou saisis une commande ci-dessous.</small></div>
+      }
+      @for (entry of entries(); track entry.id) {
+        <article class="terminal-entry" [class.terminal-error]="entry.error" [class.terminal-pending-entry]="entry.pending">
+          <div class="terminal-entry-heading"><span class="terminal-prompt">&gt;</span><code>{{ entry.command }}</code><time>{{ entry.executedAt | date:'HH:mm:ss' }}</time></div>
+          <pre>{{ entry.output }}</pre>
+        </article>
+      }
+      @if (sendingCommand()) {
+        <div class="terminal-pending" role="status"><span class="connection-dot connected"></span> Exécution de la commande…</div>
+      }
+    </div>
+
+    <form class="terminal-command-form" (ngSubmit)="sendCommand()">
+      <label for="rcon-command">COMMANDE RCON</label>
+      <div class="command-form">
+        <span class="command-prefix">&gt;_</span>
+        <input type="text" id="rcon-command" name="command" [(ngModel)]="command" (keydown)="handleCommandKeydown($event)" placeholder="Saisis une commande, ex. status" autocomplete="off" maxlength="512" required>
+        <button type="submit" [disabled]="sendingCommand() || !command.trim()" aria-label="Envoyer la commande">{{ sendingCommand() ? '…' : '↑' }}</button>
+      </div>
+      <small>Entrée pour envoyer · ↑ / ↓ pour parcourir l’historique</small>
+    </form>
+  </section>
+} @else {
+  <section class="console-disconnected">
+    <div class="banner-icon">⌑</div>
+    <div><h2>Connexion RCON nécessaire</h2><p>Saisis tes identifiants dans la barre supérieure puis clique sur « Connecter ».</p></div>
+    <a class="primary-button" routerLink="/">Configurer la connexion <span>→</span></a>
+  </section>
+}
+
+<footer class="page-footer"><span>CS2 PANEL <span class="footer-separator">/</span> CONSOLE RCON</span><span>LES COMMANDES SONT ENVOYÉES DIRECTEMENT AU SERVEUR</span></footer>
